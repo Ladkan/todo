@@ -1,13 +1,7 @@
-import PocketBase, { AsyncAuthStore } from "pocketbase"
+import PocketBase from "pocketbase"
+export const pb = new PocketBase("http://127.0.0.1:8090/");
 
-export const pb = new PocketBase("https://ladkan2.pockethost.io/");
-
-export async function getMyLists() {
-    const data = await pb.collection("todolists").getFullList({
-        sort: '-created'
-    })
-    return data
-}
+pb.autoCancellation(false)
 
 export async function getMyListTodos(id:string){
     const data = await pb.collection("todos").getFullList({

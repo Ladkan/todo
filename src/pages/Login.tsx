@@ -4,14 +4,23 @@ import { Navigate } from "react-router-dom";
 
 function Login(){
 
-    const [user, setUser] = useState('');
-    const [passwd, setPasswd] = useState('');
+    const [form, setFrom] = useState({
+        email: '',
+        passwd: ''
+    });
     const [isLoggin, setIsLoggin] = useState(pb.authStore.isValid)
+
+    const handleChange = (e:any) => {
+        setFrom({
+            ...form,
+            [e.target.name]: e.target.value
+        })
+    }
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
 
-        const data = await Auth(user, passwd)
+        const data = await Auth(form.email, form.passwd)
         setIsLoggin(data)
     }   
 
@@ -30,9 +39,10 @@ function Login(){
         <div className="relative">
           <input
             type="email"
+            name="email"
             className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
             placeholder="Enter email"
-            onChange={(e) => setUser(e.target.value)}
+            onChange={handleChange}
           />
 
           <span className="absolute inset-y-0 end-0 grid place-content-center px-4">
@@ -60,9 +70,10 @@ function Login(){
         <div className="relative">
           <input
             type="password"
+            name="passwd"
             className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
             placeholder="Enter password"
-            onChange={(e) => setPasswd(e.target.value)}
+            onChange={handleChange}
           />
 
           <span className="absolute inset-y-0 end-0 grid place-content-center px-4">
