@@ -1,27 +1,43 @@
 import { useEffect, useState } from "react";
-import { pb } from "../services/pb"
+import { getMyLists, pb } from "../services/pb"
 import Todo from "../components/Todo";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { RecordModel } from "pocketbase";
+
+
+    function useLists(){
+        return useQuery({ queryKey: ['todolist'], queryFn: async (): Promise<Array<RecordModel>> => {
+            const response = await getMyLists();
+            return response
+        },})
+    }
+
+    function cretaeList(data:any){
+        const res = pb.collection('todolists').create(data);
+        return res
+    }
 
 function Home(){
 
-    const [lists, setLists] = useState([])
-    const [trigger_create, setTriggerCreate] = useState(0)
-    useEffect(() => {
-        pb.collection("todolists").getFullList({ sort: '-created' }).then((res:any) => setLists(res));
-    },[trigger_create])
+    const {mutate} = useMutation({
+        mutationFn: cretaeList,
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['todolist']})
+        },
+    })
+
     const [listname, setListname] = useState('');
     const handleCreateList = (e) => {
         e.preventDefault();
-
         const data = {
             name: listname,
             owner: pb.authStore.record?.id
         };
-
-        pb.collection('todolists').create(data);
+        mutate(data)
         setListname('');
-        setTriggerCreate(trigger_create + 1)
     }
+    const queryClient = useQueryClient();
+    const {status, data, error, isFetching} = useLists()
 
     return(
         <div className="flex flex-col">
@@ -30,14 +46,16 @@ function Home(){
                 <button type="submit" className="text-center w-fit px-4 py-2 text-sm rounded-full font-bold text-white border-2 border-[#007bff] bg-[#007bff] transition-all ease-in-out duration-300 hover:bg-transparent hover:text-[#007bff]">Create List</button>
             </form>
             <div className="flex flex-wrap justify-center gap-5">
-{
-                lists.map((list) => (
-                <div className="bg-zinc-800 p-4 rounded-sm h-min">
-                    <h2 className="text-2xl pb-2">{list.name}</h2>
-                    <Todo id={list.id} />
-                </div>
-            ))
+            <>
+            {
+                data?.map((list) => (
+                    <div className="bg-zinc-800 p-4 rounded-sm h-min">
+                        <h2 className="text-2xl pb-2">{list.name}</h2>
+                        <Todo id={list.id} />
+                    </div>
+                ))
             }
+            </>
             </div>
 
         </div>

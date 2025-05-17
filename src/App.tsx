@@ -4,10 +4,22 @@ import Login from './pages/Login'
 import ProtectedRoute from './utils/ProtectedRoute'
 import Home from './pages/Home'
 import Layout from './Layout'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 function App() {
 
+  const queryClient = new QueryClient({
+      defaultOptions: {
+    queries: {
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours
+      refetchOnWindowFocus: false,
+    },
+  },
+  })
+
   return (
+    <QueryClientProvider client={queryClient} >
     <BrowserRouter> 
       <Routes>
           <Route element={<Login />} path='/login' />
@@ -17,7 +29,9 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </BrowserRouter>  
+    </BrowserRouter>
+    <ReactQueryDevtools initialIsOpen={false} /> 
+  </QueryClientProvider>
   )
 }
 
