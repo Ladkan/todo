@@ -15,6 +15,16 @@ export async function getMyListTodos(id:string){
     return data
 }
 
+export async function deleteList(id:string) {
+    await pb.collection('todolists').delete(id);
+    return true
+}
+
+export async function deleteTodo(id:string) {
+    await pb.collection("todos").delete(id)
+    return true
+}
+
 export async function Auth(name:string, passwd: string){
     await pb.collection("users").authWithPassword(name, passwd);
     return pb.authStore.isValid
